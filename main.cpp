@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <bitset>
+#include <filesystem>
 
 using namespace std;
 
@@ -16,8 +17,8 @@ struct leaf{
     TIPO_2 value;
     leaf *left, *right;
     leaf(){}
-    leaf(TIPO_1 key, TIPO_2 value) : left(NULL), right(NULL),key(key),value(value){}
-    leaf(TIPO_1 key, TIPO_2 value, leaf *left, leaf *right) : left(left), right(right),key(key),value(value){}
+    leaf(TIPO_1 key, TIPO_2 value) : key(key),value(value),left(NULL), right(NULL){}
+    leaf(TIPO_1 key, TIPO_2 value, leaf *left, leaf *right) : key(key),value(value),left(left), right(right){}
 
 };
 
@@ -57,11 +58,9 @@ int main(){
     }
 
     getline (file,line);
-    cout<<line<<endl;
     file.close();
 
     ofstream out("encoded.txt",ios::binary);
-
 
     my_queue occorrenze = count_occurencies(line);
     huffman_map codice = huffmann_code(occorrenze); 
@@ -70,14 +69,9 @@ int main(){
 		cout << pair.first << " " << pair.second << '\n';
 	}*/
 
-    const uint8_t max_length = 9;
-
     string encoded;
     uint8_t to_write;
     
-    size_t n_bits;
-    size_t used_bits = 0;
-
     for(char c: line){
         encoded += codice[c];
     }
@@ -87,6 +81,7 @@ int main(){
 
     while(index < str_length){
         if(str_length - index < 8){ //TODO: ultima iterazione
+            cout<<"ultima iterzione"<<endl;
             break;
         }
 
@@ -98,14 +93,20 @@ int main(){
 
     out.close();
 
+    line.clear();
+
     file = ifstream("encoded.txt",ios::binary);
-    getline (file,line);
+    stringstream buffer;
+    buffer << file.rdbuf();
+    line = buffer.str();
+    
     file.close();
 
     encoded.clear();
 
     for(char c: line){
         bitset<8> bit((uint8_t)c);
+        //cout<<bit<<endl;
         encoded += bit.to_string();   
     }
 
