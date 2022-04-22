@@ -95,7 +95,8 @@ string decode(const huffman_map &code,const string &encoded){
     uint32_t index = 0;
 
     while(index < encoded.length()) {
-        for(uint32_t i=1; i < max_length+1; i++){
+        uint32_t i;
+        for(i=1; i < max_length+1; i++){
 
             auto search = code_inverted.find(encoded.substr(index,i));
             
@@ -105,18 +106,21 @@ string decode(const huffman_map &code,const string &encoded){
                 break;
             }
         }
+
+        if(i==max_length+1){
+            cout<<"something went terribly wrong"<<endl;
+            exit(-1);
+        }
     }
     
    return decoded;
 }
 
-void visit_tree(leaf *node,string code, huffman_map &codes){
+void visit_tree(leaf *node, string code, huffman_map &codes){
     if(node == NULL)
         return;
 
     if(node->left == NULL && node->right == NULL){
-        //cout<<"'"<<node->key<<"': ";
-        //cout<<code<<endl;
         codes[node->key] = code;
         return;
     }
@@ -170,9 +174,6 @@ my_queue count_occurencies(string str){
         leaf *f = new leaf(e.first,e.second);
         sorted.push(f);
     }
-
-
-    //print_queue(sorted);
 
     return sorted;
 
