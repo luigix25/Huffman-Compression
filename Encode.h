@@ -11,7 +11,7 @@ class Encode{
         
         //Util
         void get_codes_tree_and_free(leaf *node, const string &code);
-
+        void print_queue(my_queue sorted);
 
     public:
         Encode(const string &plain): plaintext(plain){
@@ -24,5 +24,6 @@ class Encode{
         }
 
         string getEncoding();
+        Data getEncodingBinary();
 
 };

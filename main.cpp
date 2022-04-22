@@ -1,13 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include <bitset>
 #include <filesystem>
+#include <bitset>
 
 #include "Encode.h"
-
-
-void print_queue(my_queue coda);
-string decode(const huffman_map &code,const string &encoded);
+#include "Decode.h"
 
 int main(){
 
@@ -26,22 +23,10 @@ int main(){
 
     ofstream out("encoded.txt",ios::binary);
 
-   
-    uint8_t to_write;
-    
-    uint32_t index = 0;
-    const uint32_t str_length = encoded.length();
+    Data d = enc.getEncodingBinary();
 
-    while(index < str_length){
-        if(str_length - index < 8){ //TODO: ultima iterazione
-            cout<<"ultima iterzione"<<endl;
-            break;
-        }
-
-        to_write = bitset<8>(encoded,index,8).to_ulong();
-        out<<to_write;
-        index += 8;
-        
+    for(uint32_t i=0;i<d.length;i++){
+        out<<d.data[i];
     }
 
     out.close();
@@ -63,7 +48,10 @@ int main(){
         encoded += bit.to_string();   
     }
 
-    string decoded = decode(enc.getHuffmanCode(),encoded);
+
+    Decode dec(enc.getHuffmanCode(),encoded);
+
+    string decoded = dec.getDecoded();
 
     cout<<decoded<<endl;
 
@@ -71,53 +59,3 @@ int main(){
 
 
 
-
-string decode(const huffman_map &code,const string &encoded){
-    
-    huffman_map_inverted code_inverted;
-    size_t max_length = 0;
-
-
-    for(const auto p : code){
-        code_inverted[p.second] = p.first; 
-        size_t dim = p.second.length();
-        if(dim > max_length)
-            max_length = dim;
-    }
-
-    string decoded;
-    uint32_t index = 0;
-
-    while(index < encoded.length()) {
-        uint32_t i;
-        for(i=1; i < max_length+1; i++){
-
-            auto search = code_inverted.find(encoded.substr(index,i));
-            
-            if(search != code_inverted.end()){
-                decoded += search->second;
-                index += search->first.length();
-                break;
-            }
-        }
-
-        if(i==max_length+1){
-            cout<<"something went terribly wrong"<<endl;
-            exit(-1);
-        }
-    }
-    
-   return decoded;
-}
-
-
-
-void print_queue(my_queue sorted){
-
-    while (!sorted.empty()){
-        leaf *p = sorted.top();
-        cout<<p->key<<" '"<<p->value<<"'"<<endl;
-        sorted.pop();
-    }
-
-}

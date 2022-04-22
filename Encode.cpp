@@ -1,4 +1,6 @@
 #include "Encode.h"
+#include <bitset>
+#include <iostream>
 
 string Encode::getEncoding(){
     string encoded;
@@ -9,6 +11,41 @@ string Encode::getEncoding(){
 
     return encoded;
 
+}
+
+Data Encode::getEncodingBinary(){
+    string encoded;
+
+    for(char c: plaintext){
+        encoded += this->encoding[c];
+    }
+
+    const uint32_t str_length = encoded.length();
+
+    Data d;
+    d.length = str_length/8;
+
+    if((str_length % 8) != 0)
+        d.length++;
+    
+    d.data = new uint8_t[d.length];
+    uint32_t index = 0;
+    uint8_t *ptr = &d.data[0];
+
+    while(index < str_length){
+        if(str_length - index < 8){ //TODO: ultima iterazione
+            std::cout<<"ultima iterzione"<<std::endl;
+            break;
+        }
+
+        *ptr = bitset<8>(encoded,index,8).to_ulong();
+        ptr++;
+        index += 8;
+        
+    }
+
+    return d;
+    
 }
 
 my_queue Encode::count_occurencies(){
@@ -72,4 +109,13 @@ void Encode::get_codes_tree_and_free(leaf *node, const string &code){
 
     delete node;
 
+}
+
+void Encode::print_queue(my_queue sorted){
+
+    while (!sorted.empty()){
+        leaf *p = sorted.top();
+        cout<<p->key<<" '"<<p->value<<"'"<<endl;
+        sorted.pop();
+    }
 }

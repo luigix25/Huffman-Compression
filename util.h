@@ -18,6 +18,13 @@ struct leaf{
 
 };
 
+struct Data{
+    uint8_t *data;
+    uint32_t length;
+    ~Data(){
+        delete[] data;
+    }
+};
 
 class Compare
 {
