@@ -4,6 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include <bitset>
+
 using namespace std;
 
 #define TIPO_1 char
@@ -55,22 +57,57 @@ int main(){
     }
 
     getline (file,line);
+    cout<<line<<endl;
     file.close();
+
+    ofstream out("encoded.txt",ios::binary);
+
 
     my_queue occorrenze = count_occurencies(line);
     huffman_map codice = huffmann_code(occorrenze); 
     
-    for (auto pair: codice) {
+    /*for (auto pair: codice) {
 		cout << pair.first << " " << pair.second << '\n';
-	}
+	}*/
+
+    const uint8_t max_length = 9;
 
     string encoded;
-    int conta =0;
+    uint8_t to_write;
+    
+    size_t n_bits;
+    size_t used_bits = 0;
+
     for(char c: line){
         encoded += codice[c];
-    } 
+    }
 
-    //cout<<encoded<<endl;
+    uint32_t index = 0;
+    const uint32_t str_length = encoded.length();
+
+    while(index < str_length){
+        if(str_length - index < 8){ //TODO: ultima iterazione
+            break;
+        }
+
+        to_write = bitset<8>(encoded,index,8).to_ulong();
+        out<<to_write;
+        index += 8;
+        
+    }
+
+    out.close();
+
+    file = ifstream("encoded.txt",ios::binary);
+    getline (file,line);
+    file.close();
+
+    encoded.clear();
+
+    for(char c: line){
+        bitset<8> bit((uint8_t)c);
+        encoded += bit.to_string();   
+    }
 
     string decoded = decode(codice,encoded);
 
