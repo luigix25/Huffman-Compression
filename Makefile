@@ -1,6 +1,6 @@
 .PHONY: all clean
 CC = g++
-CFLAGS = #-O2 -Wall -Wextra -pedantic
+CFLAGS = -std=c++17 -O2 -Wall -Wextra -pedantic
 
 all: main
 	$(CC) main.o -o main $(CFLAGS)
