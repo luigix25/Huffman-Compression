@@ -19,6 +19,10 @@ class Encode{
             generate_huffmann_code(occourencies);
         }
 
+        huffman_map getHuffmanCode(){
+            return encoding;
+        }
+
         string getEncoding();
 
 };
