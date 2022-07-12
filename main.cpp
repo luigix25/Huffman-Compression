@@ -7,9 +7,13 @@
 #include "Encode.h"
 #include "Decode.h"
 
-int main(){
+int main(int argc, const char **argv){
 
-    ifstream file("lorem.txt");
+    if(argc < 2){
+        cout<<"filename missing"<<endl;
+        return -1;
+    }
+    ifstream file(argv[1]);
     string line;
     if (!file.is_open()){
         cout<<"errore";
@@ -34,6 +38,8 @@ int main(){
 
     line.clear();
 
+    //LETTURA E DECODIFICA
+
     file = ifstream("encoded.txt",ios::binary);
     stringstream buffer;
     buffer << file.rdbuf();
@@ -45,7 +51,6 @@ int main(){
 
     for(char c: line){
         bitset<8> bit((uint8_t)c);
-        //cout<<bit<<endl;
         encoded += bit.to_string();   
     }
 

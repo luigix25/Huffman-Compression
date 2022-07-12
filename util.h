@@ -21,7 +21,10 @@ struct leaf{
 
 struct Data{
     uint8_t *data;
-    uint32_t length;
+    const uint32_t length;
+    Data(uint32_t length) : length(length){
+        this->data = new uint8_t[length];
+    }
     ~Data(){
         delete[] data;
     }
