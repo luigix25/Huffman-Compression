@@ -102,7 +102,8 @@ int main(int argc, const char **argv){
 
     string decoded = dec.getDecoded();
 
-    cout<<decoded<<endl;
+    cout<<decoded;
+    cout.flush();
 
 }
 
