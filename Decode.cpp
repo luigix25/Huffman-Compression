@@ -6,7 +6,7 @@ Decode::Decode(huffman_map code,const string &encoded):encoded(encoded){
     max_length_code = 0;
     min_length_code = 999;
 
-    for(const auto p : code){
+    for(const auto &p : code){
         this->encoding[p.second] = p.first; 
         size_t dim = p.second.length();
         if(dim > this->max_length_code)
