@@ -4,29 +4,54 @@
 #include <filesystem>
 #include <bitset>
 
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "Encode.h"
 #include "Decode.h"
 
 int main(int argc, const char **argv){
 
-    if(argc < 2){
-        cout<<"filename missing"<<endl;
+    if(argc < 3){
+        cout<<"usage: infile outfile"<<endl;
         return -1;
     }
-    ifstream file(argv[1]);
-    string line;
-    if (!file.is_open()){
-        cout<<"errore";
-        return -1;
+   
+    const char *in_filename = argv[1];
+    const char *out_filename = argv[2];
+
+    int32_t fd = open(in_filename, O_RDONLY);
+    if(fd < 0 ){
+        cout<<"fd < 0"<<endl;
+        return fd;
     }
 
-    getline (file,line);
-    file.close();
+    off_t fsize = lseek(fd, 0, SEEK_END);
+    if(fsize == -1){
+        cout<<"errore fsize "<<errno<<endl;
+        return errno;
+    }
 
-    Encode enc(line);
-    string encoded = enc.getEncoding();
+    const char *in_buffer = (const char *)mmap(NULL, (size_t)fsize, PROT_READ, MAP_PRIVATE, fd, 0);
+    if(in_buffer == NULL){
+        cout<<"errore mmap "<<errno<<endl;
+        return errno;
+    }
+    
+    fd = close(fd);
+    if(fd < 0){
+        cout<<"errore close "<<errno<<endl;
+        return errno;
+    }
 
-    ofstream out("encoded.txt",ios::binary);
+    string plaintext(in_buffer,fsize);
+    munmap((void*)in_buffer,fsize);
+
+    Encode enc(plaintext);
+
+    //Write the encoded string to the file
+    ofstream out(out_filename,ios::binary);
 
     Data d = enc.getEncodingBinary();
 
@@ -36,20 +61,38 @@ int main(int argc, const char **argv){
 
     out.close();
 
-    line.clear();
-
     //LETTURA E DECODIFICA
 
-    file = ifstream("encoded.txt",ios::binary);
-    stringstream buffer;
-    buffer << file.rdbuf();
-    line = buffer.str();
+    fd = open(out_filename, O_RDONLY);
+    if(fd < 0 ){
+        cout<<"fd < 0"<<endl;
+        return fd;
+    }
+
+    fsize = lseek(fd, 0, SEEK_END);
+    if(fsize == -1){
+        cout<<"errore fsize "<<errno<<endl;
+        return errno;
+    }
+
+    const char *out_buffer = (const char *)mmap(NULL, (size_t)fsize, PROT_READ, MAP_PRIVATE, fd, 0);
+    if(out_buffer == NULL){
+        cout<<"errore mmap "<<errno<<endl;
+        return errno;
+    }
     
-    file.close();
+    fd = close(fd);
+    if(fd < 0){
+        cout<<"errore close "<<errno<<endl;
+        return errno;
+    }
 
-    encoded.clear();
+    string encoded_text(out_buffer,fsize);
+    munmap((void*)out_buffer,fsize);
 
-    for(char c: line){
+    string encoded;
+
+    for(char c: encoded_text){
         bitset<8> bit((uint8_t)c);
         encoded += bit.to_string();   
     }
