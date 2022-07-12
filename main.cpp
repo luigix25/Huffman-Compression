@@ -55,7 +55,7 @@ int main(int argc, const char **argv){
     }
 
 
-    Decode dec(enc.getHuffmanCode(),encoded);
+    Decode dec(enc.getHuffmanCode(),encoded,enc.getPadding());
 
     string decoded = dec.getDecoded();
 

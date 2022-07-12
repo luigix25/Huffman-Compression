@@ -21,11 +21,11 @@ Data Encode::getEncodingBinary(){
     }
 
     const uint32_t str_length = encoded.length();
-    uint8_t padding = 0;
+    this->padding = 0;
 
     //Encoded text is not multiple of 8 bits
     if((str_length % 8) != 0){
-        padding = 8 - (str_length % 8);
+        this->padding = 8 - (str_length % 8);
         for(int i=0;i<padding;i++)
             encoded += "0";
     }

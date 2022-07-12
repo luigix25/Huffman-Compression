@@ -9,8 +9,10 @@ class Decode{
         size_t min_length_code;
         size_t max_length_code;
 
+        uint8_t padding;
+
     public:
-        Decode(huffman_map code,const string &encoded);
+        Decode(huffman_map code,const string &encoded,uint8_t padding);
 
         string getDecoded();
 

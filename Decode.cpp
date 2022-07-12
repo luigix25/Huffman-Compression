@@ -1,7 +1,7 @@
 #include "Decode.h"
 #include <iostream>
 
-Decode::Decode(huffman_map code,const string &encoded):encoded(encoded){
+Decode::Decode(huffman_map code,const string &encoded, uint8_t padding):encoded(encoded),padding(padding){
 
     max_length_code = 0;
     min_length_code = SIZE_MAX;
@@ -20,7 +20,7 @@ Decode::Decode(huffman_map code,const string &encoded):encoded(encoded){
 string Decode::getDecoded(){
 
     uint32_t index = 0;
-    const uint32_t str_length = encoded.length();
+    const uint32_t str_length = encoded.length() - padding;
 
     string decoded;
 
@@ -37,10 +37,7 @@ string Decode::getDecoded(){
             }
         }
 
-        if(i==max_length_code+1 && (str_length - index < 8) ){
-            //padding was used
-            break;
-        } else if(i==max_length_code+1){
+        if(i==max_length_code+1){
             std::cout<<"something went terribly wrong"<<std::endl;
             exit(-1);
         }
