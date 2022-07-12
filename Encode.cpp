@@ -21,27 +21,26 @@ Data Encode::getEncodingBinary(){
     }
 
     const uint32_t str_length = encoded.length();
+    uint8_t padding = 0;
 
-    Data d;
-    d.length = str_length/8;
+    //Encoded text is not multiple of 8 bits
+    if((str_length % 8) != 0){
+        padding = 8 - (str_length % 8);
+        for(int i=0;i<padding;i++)
+            encoded += "0";
+    }
 
-    if((str_length % 8) != 0)
-        d.length++;
-    
-    d.data = new uint8_t[d.length];
+    const uint32_t padded_str_length = encoded.length();
+
+    Data d(padded_str_length/8);
+
     uint32_t index = 0;
     uint8_t *ptr = &d.data[0];
 
-    while(index < str_length){
-        if(str_length - index < 8){ //TODO: ultima iterazione
-            std::cout<<"ultima iterzione"<<std::endl;
-            break;
-        }
-
+    while(index < padded_str_length){
         *ptr = bitset<8>(encoded,index,8).to_ulong();
         ptr++;
-        index += 8;
-        
+        index += 8;        
     }
 
     return d;
@@ -50,15 +49,13 @@ Data Encode::getEncodingBinary(){
 
 my_queue Encode::count_occurencies(){
 
-    my_map dictionary(21); //already initialized to 0
+    my_map dictionary(256); //already initialized to 0; 255 for 8 bit
 
     for (const char &c: plaintext) {
         dictionary[c]++;
     }
 
     my_queue sorted;
-
-    //TODO: sta roba fa trashing
 
     for (auto &e: dictionary) {
         leaf *f = new leaf(e.first,e.second);
@@ -95,10 +92,10 @@ void Encode::generate_huffmann_code(my_queue &occorrenze){
 }
 
 void Encode::get_codes_tree_and_free(leaf *node, const string &code){
-    if(node == NULL)
+    if(node == nullptr)
         return;
 
-    if(node->left == NULL && node->right == NULL){
+    if(node->left == nullptr && node->right == nullptr){
         this->encoding[node->key] = code;
         delete node;
         return;

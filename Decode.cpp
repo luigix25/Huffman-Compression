@@ -4,7 +4,7 @@
 Decode::Decode(huffman_map code,const string &encoded):encoded(encoded){
 
     max_length_code = 0;
-    min_length_code = 999;
+    min_length_code = SIZE_MAX;
 
     for(const auto &p : code){
         this->encoding[p.second] = p.first; 
@@ -16,7 +16,6 @@ Decode::Decode(huffman_map code,const string &encoded):encoded(encoded){
     }
 
 }
-
 
 string Decode::getDecoded(){
 
@@ -38,7 +37,10 @@ string Decode::getDecoded(){
             }
         }
 
-        if(i==max_length_code+1){
+        if(i==max_length_code+1 && (str_length - index < 8) ){
+            //padding was used
+            break;
+        } else if(i==max_length_code+1){
             std::cout<<"something went terribly wrong"<<std::endl;
             exit(-1);
         }
