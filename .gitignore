@@ -35,3 +35,5 @@ main
 
 # Vscode
 .vscode/
+.DS_Store
+
