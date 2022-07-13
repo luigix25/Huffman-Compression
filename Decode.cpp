@@ -1,7 +1,7 @@
 #include "Decode.h"
 #include <iostream>
 
-Decode::Decode(huffman_map code,const string &encoded, uint8_t padding):encoded(encoded),padding(padding){
+Decode::Decode(huffman_map &code,const string &encoded, uint32_t padding):encoded(encoded),padding(padding){
 
     max_length_code = 0;
     min_length_code = SIZE_MAX;
