@@ -11,17 +11,43 @@
 #include "Encode.h"
 #include "Decode.h"
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+int32_t compress(const char *,const char *,const char *);
+int32_t extract(const char *,const char *,const char *);
+json ConvertToJson(const huffman_map &map);
+
 int main(int argc, const char **argv){
 
-    if(argc < 3){
-        cout<<"usage: infile outfile"<<endl;
+    if(argc < 5){
+        cout<<"usage: infile outfile codefile [c/x]"<<endl;
         return -1;
     }
    
     const char *in_filename = argv[1];
     const char *out_filename = argv[2];
+    const char *code_filename = argv[3];
 
-    int32_t fd = open(in_filename, O_RDONLY);
+    const char c = *(argv[4]);
+
+    if(c == 'c'){
+        return compress(in_filename,code_filename,out_filename);
+    } else if(c=='x'){
+        return extract(in_filename,code_filename,out_filename);
+    } else {
+        cout<<"Wrong Parameter"<<endl;
+        return -1;
+    }
+
+    //LETTURA E DECODIFICA
+
+}
+
+
+int32_t compress(const char *filename, const char *code_filename,const char *out_filename){
+
+    int32_t fd = open(filename, O_RDONLY);
     if(fd < 0 ){
         cout<<"fd < 0"<<endl;
         return fd;
@@ -49,10 +75,8 @@ int main(int argc, const char **argv){
     munmap((void*)in_buffer,fsize);
 
     Encode enc(plaintext);
-
     //Write the encoded string to the file
     ofstream out(out_filename,ios::binary);
-
     Data d = enc.getEncodingBinary();
 
     for(uint32_t i=0;i<d.length;i++){
@@ -60,16 +84,29 @@ int main(int argc, const char **argv){
     }
 
     out.close();
+    
+    //writing encoding infos
+    huffman_map code = enc.getHuffmanCode();
+     json j = ConvertToJson(code); 
 
-    //LETTURA E DECODIFICA
+    ofstream out_enc(code_filename,ios::out);
+    out_enc<<enc.getPadding()<<endl;
+    out_enc<<j<<endl;
+    out_enc.close();
 
-    fd = open(out_filename, O_RDONLY);
+
+    return 0;
+
+}
+
+int32_t extract(const char *filename, const char *code_filename,const char *out_filename){
+    int32_t fd = open(filename, O_RDONLY); //compressed file
     if(fd < 0 ){
         cout<<"fd < 0"<<endl;
         return fd;
     }
 
-    fsize = lseek(fd, 0, SEEK_END);
+    off_t fsize = lseek(fd, 0, SEEK_END);
     if(fsize == -1){
         cout<<"errore fsize "<<errno<<endl;
         return errno;
@@ -97,15 +134,35 @@ int main(int argc, const char **argv){
         encoded += bit.to_string();   
     }
 
+    ifstream encoding_file(code_filename,ios::in);
 
-    Decode dec(enc.getHuffmanCode(),encoded,enc.getPadding());
+    uint32_t padding;
+    encoding_file>>padding;
+
+    json j;
+    encoding_file>>j;
+
+    encoding_file.close();
+
+    huffman_map m;
+    nlohmann::from_json(j,m);
+
+    Decode dec(m,encoded,padding);
 
     string decoded = dec.getDecoded();
 
-    cout<<decoded;
-    cout.flush();
+    ofstream of(out_filename,ios::out);
+    of<<decoded;
+    of.close();
 
+    return 0;
 }
 
+json ConvertToJson(const huffman_map &map)
+{
 
-
+    json j;
+    nlohmann::to_json(j,map);
+    
+    return j;
+}
