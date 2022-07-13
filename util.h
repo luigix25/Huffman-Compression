@@ -7,7 +7,7 @@
 using namespace std;
 
 #define TIPO_1 char
-#define TIPO_2 uint16_t
+#define TIPO_2 uint64_t
 
 struct leaf{
     TIPO_1 key;

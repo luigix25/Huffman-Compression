@@ -38,7 +38,7 @@ Data Encode::getEncodingBinary(){
     uint8_t *ptr = &d.data[0];
 
     while(index < padded_str_length){
-        *ptr = bitset<8>(encoded,index,8).to_ulong();
+        *ptr = (uint8_t)bitset<8>(encoded,index,8).to_ulong();
         ptr++;
         index += 8;        
     }

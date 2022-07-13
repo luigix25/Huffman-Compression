@@ -78,7 +78,7 @@ int32_t compress(const char *filename, const char *code_filename,const char *out
     //Write the encoded string to the file
     ofstream out(out_filename,ios::binary);
     Data d = enc.getEncodingBinary();
-
+    
     for(uint32_t i=0;i<d.length;i++){
         out<<d.data[i];
     }
