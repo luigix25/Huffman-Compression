@@ -26,7 +26,7 @@ Data Encode::getEncodingBinary(){
     //Encoded text is not multiple of 8 bits
     if((str_length % 8) != 0){
         this->padding = 8 - (str_length % 8);
-        for(int i=0;i<padding;i++)
+        for(uint32_t i=0;i<padding;i++)
             encoded += "0";
     }
 

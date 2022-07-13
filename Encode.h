@@ -5,7 +5,7 @@ class Encode{
     private:
         huffman_map encoding;
         const string plaintext;
-        uint8_t padding;
+        uint32_t padding;
 
         my_queue count_occurencies();
         void generate_huffmann_code(my_queue &occorrenze);
@@ -24,7 +24,7 @@ class Encode{
             return encoding;
         }
 
-        uint8_t getPadding(){
+        uint32_t getPadding(){
             return padding;
         }
 
