@@ -3,7 +3,8 @@
 
 class Decode{
     private:
-        huffman_map_inverted encoding;
+        vector<my_pair> vector_encoding_length;
+
         const string encoded;
 
         size_t min_length_code;
@@ -11,8 +12,12 @@ class Decode{
 
         uint32_t padding;
 
+        huffman_map_inverted encoding;
+
+        void generate_huffman_coding();
+
     public:
-        Decode(huffman_map &code,const string &encoded, uint32_t padding);
+        Decode(const vector<my_pair> &vector_encoding_length,const string &encoded, uint32_t padding);
 
         string getDecoded();
 

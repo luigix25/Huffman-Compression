@@ -2,8 +2,8 @@
 CC = g++
 CFLAGS = -std=c++17 -O3 -Wall -Wextra -pedantic -I./include/single_include/
 
-all: main.o encode.o decode.o
-	$(CC) main.o encode.o decode.o -o main $(CFLAGS) 
+all: main.o encode.o decode.o util.o
+	$(CC) main.o encode.o decode.o util.o -o main $(CFLAGS) 
 
 main.o: main.cpp 
 	$(CC) -c main.cpp $(CFLAGS)
@@ -13,6 +13,9 @@ encode.o: Encode.cpp Encode.h
 
 decode.o: Decode.cpp Decode.h
 	$(CC) -c Decode.cpp $(CFLAGS)
+
+util.o: util.cpp util.h
+	$(CC) -c util.cpp $(CFLAGS)
 
 clean:
 	rm -f main *.o

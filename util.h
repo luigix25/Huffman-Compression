@@ -1,4 +1,5 @@
 #pragma once
+
 #include <queue>
 #include <vector>
 #include <unordered_map>
@@ -41,8 +42,11 @@ class Compare
         }
 };
 
+string numberToBitString(uint64_t number, uint64_t n_bits);
 typedef priority_queue<leaf*,vector<leaf*>,Compare> my_queue;
 typedef unordered_map<TIPO_1,TIPO_2> my_map;
+
+typedef pair<unsigned char,uint64_t> my_pair;
 
 typedef unordered_map<char,string> huffman_map;
 typedef unordered_map<string,char> huffman_map_inverted;

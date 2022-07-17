@@ -1,6 +1,13 @@
 #include "Encode.h"
-#include <bitset>
-#include <iostream>
+
+bool comparePair(my_pair i1, my_pair i2){
+    if(i1.second < i2.second)
+        return true;
+    else if(i1.second == i2.second){
+        return i1.first < i2.first;
+    }
+    return false;
+}
 
 string Encode::getEncoding(){
     string encoded;
@@ -87,22 +94,39 @@ void Encode::generate_huffmann_code(my_queue &occorrenze){
     leaf *root = occorrenze.top();
     occorrenze.pop();
 
-    get_codes_tree_and_free(root,string());
+    get_encoding_length_and_free(root,0);
+    generate_huffman_canonical();
+}
+
+void Encode::generate_huffman_canonical(){
+    
+    sort(this->vector_encoding_length.begin(), this->vector_encoding_length.end(), comparePair);
+    uint64_t counter =0;
+    uint64_t old_bitlen = vector_encoding_length[0].second;
+
+    for (const auto &x : this->vector_encoding_length){
+        //first increment then shift to the left
+        counter = counter << (x.second - old_bitlen);
+        this->encoding[x.first] = numberToBitString(counter,x.second);
+        counter = (counter + 1);
+        old_bitlen = x.second;
+    }
 
 }
 
-void Encode::get_codes_tree_and_free(leaf *node, const string &code){
+void Encode::get_encoding_length_and_free(leaf *node, uint64_t length){
     if(node == nullptr)
         return;
 
     if(node->left == nullptr && node->right == nullptr){
-        this->encoding[node->key] = code;
+        my_pair p(node->key,length);
+        this->vector_encoding_length.push_back(p);
         delete node;
         return;
     }
 
-    get_codes_tree_and_free(node->left,code +"0");
-    get_codes_tree_and_free(node->right,code +"1");
+    get_encoding_length_and_free(node->left,length+1);
+    get_encoding_length_and_free(node->right,length+1);
 
     delete node;
 

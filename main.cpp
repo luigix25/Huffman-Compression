@@ -16,7 +16,7 @@ using json = nlohmann::json;
 
 int32_t compress(const char *,const char *,const char *);
 int32_t extract(const char *,const char *,const char *);
-json ConvertToJson(const huffman_map &map);
+json ConvertToJson(const vector<my_pair> &map);
 
 int main(int argc, const char **argv){
 
@@ -41,7 +41,6 @@ int main(int argc, const char **argv){
     }
 
 }
-
 
 int32_t compress(const char *filename, const char *code_filename,const char *out_filename){
 
@@ -70,7 +69,11 @@ int32_t compress(const char *filename, const char *code_filename,const char *out
     }
 
     string plaintext(in_buffer,fsize);
-    munmap((void*)in_buffer,fsize);
+    int32_t ret_val = munmap((void*)in_buffer,fsize);
+    if(ret_val != 0){
+        cout<<"error munmap "<<errno<<endl;
+        return errno;
+    }
 
     Encode enc(plaintext);
     //Write the encoded string to the file
@@ -84,8 +87,9 @@ int32_t compress(const char *filename, const char *code_filename,const char *out
     out.close();
     
     //writing encoding infos
-    huffman_map code = enc.getHuffmanCode();
-     json j = ConvertToJson(code); 
+    vector<my_pair> code = enc.getEncodingLengths();
+
+    json j = ConvertToJson(code); 
 
     ofstream out_enc(code_filename,ios::out);
     out_enc<<enc.getPadding()<<endl;
@@ -123,7 +127,11 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
     }
 
     string encoded_text(out_buffer,fsize);
-    munmap((void*)out_buffer,fsize);
+    int32_t ret_val = munmap((void*)out_buffer,fsize);
+    if(ret_val != 0){
+        cout<<"error munmap "<<errno<<endl;
+        return errno;
+    }
 
     string encoded;
 
@@ -142,10 +150,10 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
 
     encoding_file.close();
 
-    huffman_map m;
-    nlohmann::from_json(j,m);
+    vector<my_pair> v;
+    nlohmann::from_json(j,v);
 
-    Decode dec(m,encoded,padding);
+    Decode dec(v,encoded,padding);
 
     string decoded = dec.getDecoded();
 
@@ -156,7 +164,7 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
     return 0;
 }
 
-json ConvertToJson(const huffman_map &map)
+json ConvertToJson(const vector<my_pair> &map)
 {
 
     json j;
