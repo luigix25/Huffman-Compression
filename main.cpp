@@ -92,6 +92,7 @@ int32_t compress(const char *filename, const char *code_filename,const char *out
     out_enc.write((const char*)&padding,sizeof(padding));
 
     for(const auto &pair : code){
+        out_enc.write((const char*)&pair.first,sizeof(pair.first));
         out_enc.write((const char*)&pair.second,sizeof(pair.second));
     }
 
@@ -145,9 +146,9 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
     encoding_file.read((char*)&padding,sizeof(padding));
 
     vector<my_pair> v;
-    for(uint16_t i=0;i<256;i++){
+    while(!encoding_file.eof()){
         my_pair p;
-        p.first = i;
+        encoding_file.read((char*)&p.first,sizeof(p.first));
         encoding_file.read((char*)&p.second,sizeof(p.second));
 
         v.push_back(p);
