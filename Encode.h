@@ -10,7 +10,7 @@ class Encode{
         vector<my_pair> vector_encoding_length;
 
         const string plaintext;
-        uint32_t padding;
+        uint8_t padding;
 
         my_queue count_occurencies();
         void generate_huffmann_code(my_queue &occorrenze);
@@ -34,7 +34,7 @@ class Encode{
             return vector_encoding_length;
         }        
 
-        uint32_t getPadding(){
+        uint8_t getPadding(){
             return padding;
         }
 

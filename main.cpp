@@ -11,12 +11,8 @@
 #include "Encode.h"
 #include "Decode.h"
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
 int32_t compress(const char *,const char *,const char *);
 int32_t extract(const char *,const char *,const char *);
-json ConvertToJson(const vector<my_pair> &map);
 
 int main(int argc, const char **argv){
 
@@ -89,14 +85,17 @@ int32_t compress(const char *filename, const char *code_filename,const char *out
     //writing encoding infos
     vector<my_pair> code = enc.getEncodingLengths();
 
-    json j = ConvertToJson(code); 
+    //writing info (in binary) for recostruting huffman tree: first padding, then bitlength
 
-    ofstream out_enc(code_filename,ios::out);
-    out_enc<<enc.getPadding()<<endl;
-    out_enc<<j<<endl;
+    ofstream out_enc(code_filename,ios::binary);
+    uint8_t padding = enc.getPadding();
+    out_enc.write((const char*)&padding,sizeof(padding));
+
+    for(const auto &pair : code){
+        out_enc.write((const char*)&pair.second,sizeof(pair.second));
+    }
+
     out_enc.close();
-
-
     return 0;
 
 }
@@ -140,18 +139,22 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
         encoded += bit.to_string();   
     }
 
-    ifstream encoding_file(code_filename,ios::in);
+    ifstream encoding_file(code_filename,ios::binary);
 
-    uint32_t padding;
-    encoding_file>>padding;
-
-    json j;
-    encoding_file>>j;
-
-    encoding_file.close();
+    uint8_t padding;
+    encoding_file.read((char*)&padding,sizeof(padding));
 
     vector<my_pair> v;
-    nlohmann::from_json(j,v);
+    for(uint16_t i=0;i<256;i++){
+        my_pair p;
+        p.first = i;
+        encoding_file.read((char*)&p.second,sizeof(p.second));
+
+        v.push_back(p);
+    }
+
+
+    encoding_file.close();
 
     Decode dec(v,encoded,padding);
 
@@ -162,13 +165,4 @@ int32_t extract(const char *filename, const char *code_filename,const char *out_
     of.close();
 
     return 0;
-}
-
-json ConvertToJson(const vector<my_pair> &map)
-{
-
-    json j;
-    nlohmann::to_json(j,map);
-    
-    return j;
 }

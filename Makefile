@@ -1,6 +1,6 @@
 .PHONY: all clean
 CC = g++
-CFLAGS = -std=c++17 -O3 -Wall -Wextra -pedantic -I./include/single_include/
+CFLAGS = -std=c++17 -O3 -Wall -Wextra -pedantic
 
 all: main.o encode.o decode.o util.o
 	$(CC) main.o encode.o decode.o util.o -o main $(CFLAGS) 
