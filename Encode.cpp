@@ -1,4 +1,7 @@
 #include "Encode.h"
+#include <algorithm>
+#include <iostream>
+#include <bitset>
 
 bool comparePair(my_pair i1, my_pair i2){
     if(i1.second < i2.second)
